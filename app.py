@@ -1,11 +1,9 @@
 import streamlit as st
-import google.generativeai as genai
 
-# 스타일 설정: 전체 화면 클릭 가능하게
+# 스타일 설정: 배경 검정, 글자 회색, 투명 버튼
 st.markdown("""
     <style>
     .stApp { background-color: #121212; color: #e0e0e0; }
-    /* 투명 버튼을 화면 전체에 배치 */
     div.stButton > button {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
         background-color: transparent !important; border: none !important; color: transparent !important;
@@ -15,7 +13,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 if 'step' not in st.session_state: st.session_state.step = 0
-if 'problems' not in st.session_state: st.session_state.problems = ["x^2 + 2x + 1 = 0", "3x + 5 = 11", "2x - 4 = 0"]
+# 문제와 정답을 리스트 형태로 묶음
+if 'problems' not in st.session_state: 
+    st.session_state.problems = [
+        {"q": "x^2 + 2x + 1 = 0", "a": "x = -1"},
+        {"q": "3x + 5 = 11", "a": "x = 2"},
+        {"q": "2x - 4 = 0", "a": "x = 2"}
+    ]
 if 'idx' not in st.session_state: st.session_state.idx = 0
 
 # 0단계: 시작
@@ -38,7 +42,7 @@ elif st.session_state.step == 1:
 elif st.session_state.step == 2:
     if st.session_state.idx < len(st.session_state.problems):
         st.write(f"### 문제 {st.session_state.idx + 1}")
-        st.latex(st.session_state.problems[st.session_state.idx])
+        st.latex(st.session_state.problems[st.session_state.idx]["q"])
         st.write("---")
         st.write("화면을 클릭하면 다음 문제로 넘어갑니다.")
         if st.button("next"):
@@ -48,7 +52,9 @@ elif st.session_state.step == 2:
         st.session_state.step = 3
         st.rerun()
 
-# 3단계: 결과
+# 3단계: 정답 확인
 elif st.session_state.step == 3:
-    st.write("### 정답지")
-    st.write("모든 문제를 완료했습니다.")
+    st.subheader("정답지")
+    for i, item in enumerate(st.session_state.problems):
+        st.write(f"문제 {i+1}:")
+        st.latex(item["a"])
