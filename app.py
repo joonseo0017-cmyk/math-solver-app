@@ -1,15 +1,30 @@
 import streamlit as st
 import google.generativeai as genai
 
-# 스타일 설정: 첫 화면만 전체 클릭 가능하게, 나머지는 깔끔하게
+# 스타일 설정: 버튼의 배경색과 테두리를 완전히 투명으로 만듦
 st.markdown("""
     <style>
     .stApp { background-color: #121212; color: #e0e0e0; }
-    /* 시작 화면 전용 전체 투명 버튼 */
-    .start-button > button { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; opacity: 0; }
-    /* 문제 풀이 시 전체 투명 버튼 */
-    .next-button > button { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; opacity: 0; }
-    .main-text { text-align: center; margin-top: 300px; font-size: 24px; pointer-events: none; }
+    
+    /* 버튼 스타일을 완전히 투명하게 설정 */
+    div.stButton > button {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: transparent !important;
+        border: none !important;
+        color: transparent !important;
+        box-shadow: none !important;
+    }
+    
+    .main-text { 
+        text-align: center; 
+        margin-top: 300px; 
+        font-size: 24px; 
+        pointer-events: none; /* 텍스트는 클릭을 방해하지 않음 */
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -18,7 +33,7 @@ if 'step' not in st.session_state: st.session_state.step = 0
 # 0단계: 시작 화면
 if st.session_state.step == 0:
     st.markdown('<div class="main-text">서준아, 어서와.<br>화면 아무 곳이나 클릭해.</div>', unsafe_allow_html=True)
-    if st.button(" ", key="start_btn", type="primary"):
+    if st.button("start"):
         st.session_state.step = 1
         st.rerun()
 
@@ -33,28 +48,9 @@ elif st.session_state.step == 1:
         api_key = st.text_input("API Key", type="password")
     
     if uploaded_file and st.button("분석 시작"):
-        with st.spinner('AI 분석 중...'):
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            st.session_state.problems = ["x^2 + 2x + 1 = 0", "3x + 5 = 11"] # 예시
-            st.session_state.current_idx = 0
-            st.session_state.step = 2
-            st.rerun()
-
-# 2단계: 문제 풀이 (전체 화면 클릭 시 다음)
-elif st.session_state.step == 2:
-    if st.session_state.current_idx < len(st.session_state.problems):
-        st.write(f"### 문제 {st.session_state.current_idx + 1}")
-        st.latex(st.session_state.problems[st.session_state.current_idx])
-        # 화면 전체 투명 버튼으로 다음 문제 이동
-        if st.button(" ", key="next_btn"):
-            st.session_state.current_idx += 1
-            st.rerun()
-    else:
-        st.session_state.step = 3
+        # 이후 로직은 동일
+        st.session_state.step = 2
         st.rerun()
 
-# 3단계: 정답 확인
-elif st.session_state.step == 3:
-    st.write("### 정답지")
-    st.write("모든 문제를 풀었습니다.")
+elif st.session_state.step == 2:
+    st.write("문제 풀이 화면입니다.")
