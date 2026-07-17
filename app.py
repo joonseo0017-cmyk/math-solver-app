@@ -1,44 +1,47 @@
 import streamlit as st
-import time
 
-# 핑크색 배경 스타일 적용
+# 젠틀한 다크 모드 스타일 설정
 st.markdown("""
     <style>
     .stApp {
-        background-color: #ffeef2;
+        background-color: #1e1e1e;
+        color: #e0e0e0;
     }
-    .main-title {
+    .welcome-text {
+        color: #ffffff;
+        font-size: 32px;
+        font-weight: 300;
         text-align: center;
-        color: #ff6b8b;
-        font-size: 50px;
-        margin-top: 100px;
+        padding-top: 150px;
+    }
+    .instruction {
+        color: #888888;
+        text-align: center;
+        font-size: 16px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# 세션 상태 초기화
-if 'show_upload' not in st.session_state:
-    st.session_state.show_upload = False
+if 'show_main' not in st.session_state: st.session_state.show_main = False
 
-# 화면 구성
-if not st.session_state.show_upload:
-    # 핑크 배경에 환영 인사만 띄우기
-    st.markdown('<div class="main-title">서준아! 어서와! 👋</div>', unsafe_allow_html=True)
-    st.write("---")
-    st.write("### 아무 곳이나 클릭해서 시작해보자!")
-    
-    # 버튼을 크게 만들어 아무 곳이나 누르는 느낌 구현
-    if st.button("시작하기 (여기 클릭!)", use_container_width=True):
-        st.session_state.show_upload = True
+if not st.session_state.show_main:
+    st.markdown('<div class="welcome-text">서준아, 어서와.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="instruction">화면을 클릭하면 시작합니다.</div>', unsafe_allow_html=True)
+    if st.button(" ", key="overlay", use_container_width=True):
+        st.session_state.show_main = True
         st.rerun()
-
 else:
-    # 클릭 후 사진 업로드 화면
-    st.header("📸 문제 사진을 올려줘!")
-    uploaded_file = st.file_uploader("여기에 문제를 올려봐", type=["jpg", "png", "jpeg"])
+    st.subheader("문제 설정")
     
+    col1, col2 = st.columns(2)
+    with col1:
+        uploaded_file = st.file_uploader("문제 사진을 올려주세요.")
+    with col2:
+        num_questions = st.slider("문제 개수", 1, 30, 5)
+        api_key = st.text_input("API Key 입력", type="password")
+        
     if uploaded_file:
-        st.image(uploaded_file, caption="업로드한 문제", use_container_width=True)
-        num = st.slider("몇 문제 풀거야?", 1, 10, 3)
-        if st.button("문제 분석 시작하기"):
-            st.success(f"{num}개의 문제를 분석해서 준비할게!")
+        st.image(uploaded_file, use_column_width=True)
+        if st.button("분석 시작"):
+            st.info("AI가 사진에서 문제를 추출 중입니다. 잠시만 기다려주세요.")
+            # 분석 속도 최적화를 위해 모델을 'gemini-1.5-flash'로 설정해야 합니다.
